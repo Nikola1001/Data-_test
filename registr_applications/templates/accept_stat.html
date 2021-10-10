@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Обработка заявления{% endblock %}
+
+
+{% block content %}
+
+<form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+<p>
+    <label>Номер заявления</label><br>
+    <input type="number" name="number" value="{{stat.number}}" disabled />
+</p>
+
+
+    <p><label>Наименование услуги</label><br>
+         <select size="4" required multiple name="name">
+             <option value="Получение выписки из адресного реестра">Получение выписки из адресного реестра</option>
+             <option  value="Внесение изменений в адресный реестр">Внесение изменений в адресный реестр</option>
+             <option value="Удаление адреса из адресного реестра">Удаление адреса из адресного реестра</option>
+             <option value="Получение выписки из архива">Получение выписки из архива</option>
+   </select></p>
+
+
+
+    <label>Текст заявления</label><br>
+    <p><textarea rows="15" cols="60" required name="content">{{stat.content}}</textarea></p>
+
+
+
+     <p><label>Статус заявления</label><br>
+         <select size="7" required multiple name="status">
+             <option selected value="Зарегистрировано">Зарегистрировано</option>
+             <option  value="Отказ">Отказ</option>
+             <option value="Направлена квитанция на оплату">Направлена квитанция на оплату</option>
+             <option value="Принято в работу">Принято в работу</option>
+             <option value="Выполняются работы по заявлению">Выполняются работы по заявлению</option>
+             <option value="Результаты готовы к выдаче">Результаты готовы к выдаче</option>
+             <option value="Результаты переданы заявителю">Результаты переданы заявителю</option>
+   </select></p>
+
+    <p><label>Результат рассмотрения</label><br>
+         <select size="5" required multiple name="result">
+             <option value="Подготовлена справка об отсутствии данных">Подготовлена справка об отсутствии данных</option>
+             <option value="Сформирована выписка из адресного реестра">Сформирована выписка из адресного реестра</option>
+             <option value="Внесены изменения в адресный реестр">Внесены изменения в адресный реестр</option>
+             <option value="Удален адрес из адресного реестра">Удален адрес из адресного реестра</option>
+             <option value="Сформирована выписка из архива">Сформирована выписка из архива</option>
+   </select></p>
+    <p>
+    <label>email</label><br>
+    <input type="email" name="email" required value="{{stat.email}}" />
+</p>
+    <p>
+    <label>Пользователь</label><br>
+    <input type="text" name="name" value="{{stat.user}}" disabled />
+</p>
+
+    <label>Дата подачи</label><br>
+    <p>{{stat.date}}</p>
+
+
+<p><a href="{{ stat.docs.url }}">Ссылка на документ </a></p>
+
+
+    <label>Прикрепить файл</label><br>
+    <input type="file" name="docs" value="{{stat.docs.url}}" /><br>
+
+
+
+
+<br>
+
+<p>
+    <a href="{% url 'delete_stat' stat.number %}"><button>Удалить заявление</button></a>
+
+
+
+        <input type="submit" value="Сохранить" >
+    </form>
+</p>
+
+
+<p>
+    <label>Приложенный документ</label><br>
+<p><img width="500px" height="600" src="{{ stat.docs.url }}"></p>
+</p>
+
+
+{% endblock %}

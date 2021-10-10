@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Мои заявления{% endblock %}
+
+
+{% block content %}
+
+{% if user.is_staff %}
+
+
+
+<h1>Обработаны мной</h1><br>
+
+<table border="1"  style="table-layout: fixed">
+    <colgroup>
+    <col span="1" style="background:Khaki">
+  </colgroup>
+  <tr>
+    <td width="60">Номер</td>
+      <td>Текст заявления</td>
+      <td>Ссылка на документ</td>
+      <td>Дата подачи</td>
+      <td></td>
+  </tr>
+    {% for stat in stats %}
+    <tr><td>{{ stat.number}}</td>
+       <td > <div>{{ stat.content }}</div></td>
+        <td> <a href="{{  stat.docs.url }}">Перейти</a></td>
+        <td> {{ stat.date }}</td>
+        <td><a href="{% url 'accept_stat' stat.number %}"><button style="font-size:1.2vw;">Посмотреть заявление</button></a></td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+
+
+{% else %}
+
+<h1>Поданные мной заявления</h1><br>
+
+<table border="1"  style="table-layout: fixed">
+    <colgroup>
+    <col span="1">
+  </colgroup>
+
+    {% for stat in stats %}
+    <tr><td>Номер заявления: {{ stat.number}}<br>
+        {% if not stat.name  %}
+        <span style="color: red;">Заявление еще не просмотрено</span><br>
+        {% else %}
+    Название услуги: {{ stat.name }}<br>
+
+        {% endif %}
+    Статус: {{ stat.status }}<br>
+    Результат обработки: {{ stat.result }}<br>
+
+
+
+        Ссылка на приложенный документ  <a href="{{  stat.docs.url }}">Перейти</a> <br>
+ Дата подачи: {{ stat.date}}</div> <br>
+        <a href="{% url 'about_stat' stat.number %}"><button style="font-size:1.2vw;">Посмотреть</button></a></td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+{% endif %}
+{% endblock %}

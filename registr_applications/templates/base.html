@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'registr_applications/css/registr_applications.css' %}">
+</head>
+<body>
+
+    <ul class="sidenav">
+       {% if user.is_authenticated %}
+        <p>Добро пожаловать, {{ user }}</p>
+
+                                {% if user.is_staff %}
+
+                                    <li><a href="{% url 'unprocessed_stat'  %}">Необработанные заявления</a></li>
+                                    <li><a href="{% url 'my_statements' %}">Обработаны мной</a></li>
+                                    <li><a href="{% url 'all_statements' %}">Все заявления</a></li>
+                                {% else %}
+                                     <li><a href="{% url 'add_statement' %}">Подать заявление</a></li>
+                                    <li><a href="{% url 'my_statements' %}">Поданные заявления</a></li>
+
+                                {% endif %}
+                <li><a href="{% url 'logout' %}">Выход</a></li>
+        {% else %}
+            <li><a href="{% url 'login' %}">Войти</a></li>
+            <li><a href="{% url 'signup' %}">Регистрация</a></li>
+        {% endif %}
+    </ul>
+
+
+<div class="content">
+
+    {% block content %}
+
+    {% endblock %}
+
+
+</div>
+</body>
+</html>

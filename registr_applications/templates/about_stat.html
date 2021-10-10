@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Информация по заявлению{% endblock %}
+
+
+{% block content %}
+
+
+<p>Номер заявления: {{ stat.number}}</p>
+<p>Название услуги: {{ stat.name }}</p>
+<p>Статус: {{ stat.status }}</p>
+<p>Результат обработки: {{ stat.result }}</p>
+<p>Дата подачи: {{ stat.date}}</p>
+<p><img width="500px" height="600" src="{{ stat.docs.url }}"></p>
+<a href="{{ stat.docs.url }}"></a>
+
+
+{% endblock %}

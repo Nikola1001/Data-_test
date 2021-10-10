@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Все заявления{% endblock %}
+
+
+{% block content %}
+{% if user.is_staff %}
+
+
+
+<h1>Все заявления</h1><br>
+
+<table border="1"  style="table-layout: fixed">
+    <colgroup>
+    <col span="1" style="background:Khaki">
+  </colgroup>
+  <tr>
+    <td width="60">Номер</td>
+      <td>Текст заявления</td>
+      <td>Ссылка на документ</td>
+      <td>Дата подачи</td>
+      <td></td>
+  </tr>
+    {% for stat in stats %}
+    <tr><td>{{ stat.number}}</td>
+       <td > <div>{{ stat.content }}</div></td>
+        <td> <a href="{{  stat.docs.url }}">Перейти</a></td>
+        <td> {{ stat.date }}</td>
+        <td><a href="{% url 'accept_stat' stat.number %}"><button style="font-size:1.2vw;">Посмотреть заявление</button></a></td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+{% endif %}
+
+
+{% endblock %}
