@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views import generic
 from .forms import StatementUserForm
-from django.views.generic import CreateView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView, DeleteView
 from .models import Statement
 from django.conf import settings
 from django.core.mail import send_mail
@@ -28,11 +28,7 @@ class StatementCreateView(CreateView):
     form_class = StatementUserForm
     success_url = '/'
 
-
-def create_statment_user(request):
-    """обработка создания заявления"""
-    error=""
-    if request.method == 'POST':
+    def post(self, request, *args, **kwargs):
         form = StatementUserForm(request.POST, request.FILES)
         if form.is_valid():
             form_ext = form.save(commit=False)
@@ -40,54 +36,51 @@ def create_statment_user(request):
             form_ext.status = "Зарегистрировано"
             form_ext.save()
             # img_obj = form.instance
-            return render(request, 'index.html', {"form": form})
-        else:
-            error = 'Ошибка заполнения формы'
-    else:
-        form = StatementUserForm()
-        data = {
-            'form': form,
-            "error": error
-        }
-    return render(request, 'create_statement_for_user.html', data)
+        return render(request, 'index.html', {"form": form})
 
 
-def about_stat(request, st_number):
-    """информация по заявлению для юзера"""
-    stat = Statement.objects.get(number=st_number)
-    return render(request, 'about_stat.html', {"stat": stat})
+class StatDetailView(DetailView):
+    model = Statement
+    template_name = 'about_stat.html'
+    context_object_name = "stat"
 
 
-def accept_stat(request, st_number):
-    """Обработка заявления"""
-    try:
-        stat = Statement.objects.get(number=st_number)
-        if request.method == "POST":
-            stat.content = request.POST.get("content")
-            stat.name = request.POST.get("name")
-            stat.result = request.POST.get("result")
-            # stat.docs = request.POST.get("docs")
-            stat.passed = True
-            stat.status = request.POST.get("status")
-            stat.email = request.POST.get("email")
-            stat.admin = request.user
-            stat.save()
-            try:
-                send_mail('Информация о поданном заявлении', 'Изменилися текущий статус заявления \n подробнее в личном кабинете', settings.EMAIL_HOST_USER, ['kolagolikov@yandex.ru'])
-            except Exception as ex:
-                print(ex)
-                print("Не удалось отправить сообщение")
-            return HttpResponseRedirect("/")
-        else:
-            return render(request, "accept_stat.html", {"stat": stat})
-    except Statement.DoesNotExist:
-        return HttpResponseNotFound("<h2>Заявление не найдено</h2>")
+class StatUpdateView(UpdateView):
+    model = Statement
+    template_name = 'accept_stat.html'
+    fields = '__all__'
+    context_object_name = "stat"
+
+    def post(self, request, *args, **kwargs):
+        stat = Statement.objects.get(number=self.kwargs['pk'])
+        stat.content = request.POST.get("content")
+        stat.name = request.POST.get("name")
+        stat.result = request.POST.get("result")
+        # stat.docs = request.POST.get("docs")
+        stat.passed = True
+        stat.status = request.POST.get("status")
+        stat.email = request.POST.get("email")
+        stat.admin = request.user
+        stat.save()
+        try:
+            send_mail('Информация о поданном заявлении', 'Изменилися текущий статус заявления \n подробнее в личном кабинете', settings.EMAIL_HOST_USER, ['kolagolikov@yandex.ru'])
+        except Exception as ex:
+            print(ex)
+            print("Не удалось отправить сообщение")
+        return HttpResponseRedirect("/")
+
+    def get_object(self):
+        return Statement.objects.get(number=self.kwargs['pk'])
 
 
-def unprocessed_stat(request):
-    """Необработанные заявления"""
-    stats = Statement.objects.filter(passed=False)
-    return render(request, 'unprocessed.html', {"stats": stats})
+class UnprocessedStatList(ListView):
+    model = Statement
+    template_name = 'unprocessed.html'
+    context_object_name = "stats"
+    allow_empty = False
+
+    def get_queryset(self):
+        return Statement.objects.filter(passed=False)
 
 
 def delete_stat(request, st_number):
@@ -103,19 +96,25 @@ def delete_stat(request, st_number):
         return HttpResponseNotFound("<h2>Заявление не найдено</h2>")
 
 
-def my_statements(request):
-    """Мои заявления и для юзера и для админа"""
-    user = request.user
-    if user.is_staff:
-        stats = Statement.objects.filter(admin=user)
-    else:
-        stats = Statement.objects.filter(user=user)
-    return render(request, 'my_statements.html', {"stats": stats})
+class MyStatsList(ListView):
+    model = Statement
+    template_name = 'my_statements.html'
+    context_object_name = "stats"
+    allow_empty = False
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            return Statement.objects.filter(admin=user)
+        else:
+            return Statement.objects.filter(user=user)
 
 
-def all_statements(request):
-    """Все заявления"""
-    stats = Statement.objects.all()
-    return render(request, 'all_statements.html', {"stats": stats})
+class AllStatementsList(ListView):
+    model = Statement
+    template_name = 'all_statements.html'
+    context_object_name = "stats"
 
+    def get_queryset(self):
+      return Statement.objects.all()
 

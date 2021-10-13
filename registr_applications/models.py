@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 
 
 def user_directory_path(instance, filename):
@@ -23,6 +24,9 @@ class Statement(models.Model):
     user = models.ForeignKey(User, blank=True,null=True, on_delete=models.CASCADE, related_name='user_set', verbose_name='Пользователь')
     # docs = models.ImageField(upload_to="docs\\"+ str(users), verbose_name='Image')
     docs = models.ImageField(upload_to=user_directory_path, null=True, )
+
+    def get_absolute_url(self):
+        return '/'
 
     def __str__(self):
         return str(self.number) + self.name
